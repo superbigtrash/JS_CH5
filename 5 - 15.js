@@ -1,4 +1,11 @@
-var partial = function () {
+Object.defineProperty(global, '_', {
+    value: 'EMPTY_SPACE',
+    writable: false,
+    configurable: false,
+    enumerable: false
+});
+
+var partial2 = function () {
     var originalPartialArgs = arguments;
     var func = originalPartialArgs[0];
     if (typeof func !== 'function') {
@@ -7,6 +14,11 @@ var partial = function () {
     return function () {
         var partialArgs = Array.prototype.slice.call(originalPartialArgs, 1);
         var restArgs = Array.prototype.slice.call(arguments);
+        for (var i = 0; i < partialArgs.length; i++) {
+            if (partialArgs[i] === _) {
+                partialArgs[i] = restArgs.shift();
+            }
+        }
         return func.apply(this, partialArgs.concat(restArgs));
     };
 };
@@ -18,13 +30,13 @@ var add = function () {
     }
     return result;
 };
-var addPartial = partial(add, 1, 2, 3, 4, 5);
-console.log(addPartial(6, 7, 8, 9, 10));
+var addPartial = partial2(add, 1, 2, _, 4, 5, _, _, 8, 9);
+console.log(addPartial(3, 6, 7, 10));
 
 var dog = {
     name: '강아지',
-    greet: partial(function(prefix, suffix) {
+    greet: partial2(function(prefix, suffix) {
         return prefix + this.name + suffix;
     }, '왈왈, ')
 };
-dog.greet('입니다!');
+dog.greet(' 배고파요!');
